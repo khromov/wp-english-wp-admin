@@ -3,7 +3,7 @@
 Plugin Name: English WordPress Admin
 Plugin URI: http://wordpress.org/plugins/english-wp-admin
 Description: Lets users change their administration language to English
-Version: 1.2
+Version: 1.3.0
 Author: khromov
 Author URI: http://snippets.khromov.se
 License: GPL2
@@ -68,8 +68,10 @@ class Admin_Custom_Language
 				//Set cookie
 				$cookie_value === 1 ? $this->set_cookie(1) : $this->set_cookie(0);
 
-				//Redirect back to admin
-				wp_redirect(admin_url());
+				if(isset($_GET['admin_custom_language_return_url']))
+					wp_redirect(urldecode($_GET['admin_custom_language_return_url']));
+				else
+					wp_redirect(admin_url());
 			}
 		}
 	}
@@ -100,9 +102,7 @@ class Admin_Custom_Language
 	function english_install_only()
 	{
 		if(defined('WPLANG'))
-		{
 			return (WPLANG === 'en_US' || WPLANG === '') ? true : false;
-		}
 		else
 			return true;
 	}
@@ -118,7 +118,7 @@ class Admin_Custom_Language
 		if(is_admin() && !$this->english_install_only() && apply_filters('english_wordpress_admin_show_admin_bar', true) === true)
 		{
 			//Sets up the toggle link
-			$toggle_href = admin_url('?admin_custom_language_toggle=' . ($this->english_admin_enabled() ? '0' : '1'));
+			$toggle_href = admin_url('?admin_custom_language_toggle=' . ($this->english_admin_enabled() ? '0' : '1') . '&admin_custom_language_return_url=' . urlencode((is_ssl() ? 'https' : 'http') . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]));
 
 			$message_on = __('Switch to native', 'admin-custom-language');
 			$message_off = __('Switch to English', 'admin-custom-language');
@@ -165,7 +165,7 @@ class Admin_Custom_Language
 	 */
 	function cookie_setting_value()
 	{
-		if(isset($_COOKIE['wordpress_admin_default_language_'. COOKIEHASH]))
+		if(defined('COOKIEHASH') && isset($_COOKIE['wordpress_admin_default_language_'. COOKIEHASH]))
 			return intval($_COOKIE['wordpress_admin_default_language_'. COOKIEHASH]);
 		else
 			return null;
@@ -186,7 +186,7 @@ class Admin_Custom_Language
 	 */
 	function admin_css()
 	{
-		if($this->wp_version_minimum('3.8'))
+		if($this->wp_version_at_least('3.8'))
 		{
 			echo '
 			<style type="text/css">
@@ -208,9 +208,9 @@ class Admin_Custom_Language
 	 * @param $version The version we want to check against the current one
 	 * @return bool True if the current WP version is at least as new as $version
 	 */
-	function wp_version_minimum($version)
+	function wp_version_at_least($version)
 	{
-		if (version_compare($version, get_bloginfo('version'), '>=' ))
+		if (version_compare(get_bloginfo('version'), $version, '>='))
 			return true;
 		else
 			return false;
@@ -223,7 +223,7 @@ class Admin_Custom_Language
 	{
 		?>
 		<div class="error">
-			<p><?php _e( "<strong>English Wordpress Admin Error:</strong> You only have English language installed. Please install another language before using this plugin. <a href='http://codex.wordpress.org/Installing_WordPress_in_Your_Language' target='_blank'>Read more (WordPress codex)</a>", 'admin-custom-language' ); ?></p>
+			<p><?php _e( "<strong>English Wordpress Admin Error</strong> <br/>You only have English language installed. Please install another language before using this plugin. <a href='http://codex.wordpress.org/Installing_WordPress_in_Your_Language' target='_blank'>Read more (WordPress codex)</a> <br/> This plugin is not compatible with WPML, as WPML already provides this functionality under the \"Profile\" tab.", 'admin-custom-language' ); ?></p>
 		</div>
 		<?php
 	}

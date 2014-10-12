@@ -3,7 +3,7 @@ Contributors: khromov
 Tags: english, wpml, multilanguage
 Requires at least: 3.5
 Tested up to: 4.0
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPL2
 
 Lets users change their administration language to English

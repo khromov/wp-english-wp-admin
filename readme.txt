@@ -2,8 +2,8 @@
 Contributors: khromov
 Tags: english, wpml, multilanguage
 Requires at least: 3.5
-Tested up to: 3.9
-Stable tag: 1.3.0
+Tested up to: 4.0
+Stable tag: 1.3.1
 License: GPL2
 
 Lets users change their administration language to English
@@ -76,6 +76,10 @@ This is a tiny plugin with a small mission. If you want better customization, ch
 1. The plugin admin bar
 
 == Changelog ==
+
+= 1.3.1 =
+* Fixed an edge case where the "You only have English language installed." 
+message would appear erroneously.
 
 = 1.3.0 =
 * When changing language, you are now sent back to the page you were originally on instead of being reverted to the dashboard.

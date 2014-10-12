@@ -3,7 +3,7 @@
 Plugin Name: English WordPress Admin
 Plugin URI: http://wordpress.org/plugins/english-wp-admin
 Description: Lets users change their administration language to English
-Version: 1.3.0
+Version: 1.3.1
 Author: khromov
 Author URI: http://snippets.khromov.se
 License: GPL2
@@ -104,7 +104,12 @@ class Admin_Custom_Language
 		if(defined('WPLANG'))
 			return (WPLANG === 'en_US' || WPLANG === '') ? true : false;
 		else
-			return true;
+		{
+			if(function_exists('get_bloginfo') && get_bloginfo('language') !== 'en_US')
+				return false;
+			else
+				return true;
+		}
 	}
 
 	/**

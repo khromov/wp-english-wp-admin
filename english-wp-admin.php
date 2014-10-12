@@ -77,6 +77,18 @@ class Admin_Custom_Language
 	}
 
 	/**
+	 * Checks if a version number is larger than or equal to a certain version
+	 *
+	 * @param $version
+	 * @return bool
+	 */
+	function is_version($version)
+	{
+		global $wp_version;
+		return version_compare($wp_version, $version, '>=');
+	}
+
+	/**
 	 * Sets the cookie. (1 year expiry)
 	 */
 	function set_cookie($value = '1')
@@ -95,19 +107,27 @@ class Admin_Custom_Language
 	}
 
 	/**
-	 * Check so that we are not on options-general.php, due to:
+	 * Check so that we are not on options-general.php, due to WP 4.0 issue:
 	 * https://core.trac.wordpress.org/ticket/29362#comment:5
 	 *
 	 * @return bool
 	 */
 	function request_is_options_general_form()
 	{
-		$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+		//Perform check for new WP versions
+		if($this->is_version('4.0'))
+		{
+			$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 
-		if(substr($request_uri, -19) === 'options-general.php')
-			return true;
-		else
+			if(substr($request_uri, -19) === 'options-general.php')
+				return true;
+			else
+				return false;
+		}
+		else //Don't do checks for old versions
+		{
 			return false;
+		}
 	}
 
 	/**

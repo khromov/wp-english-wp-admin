@@ -77,6 +77,9 @@ This is a tiny plugin with a small mission. If you want better customization, ch
 
 == Changelog ==
 
+= 1.3.2 =
+* Blacklisted changing language on Settings > General admin page until https://core.trac.wordpress.org/ticket/29362#comment:5 is fixed.
+
 = 1.3.1 =
 * Fixed an edge case where the "You only have English language installed." 
 message would appear erroneously.

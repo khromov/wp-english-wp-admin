@@ -20,14 +20,22 @@ class Admin_Custom_Language
 		//Locale filter
 		add_filter('locale', array(&$this, 'set_locale'));
 
-		//Registers GET listener to toggle setting
-		add_action('init', array(&$this, 'register_endpoints'));
-
 		//Adds admin bar menu
 		add_action('admin_bar_menu', array(&$this, 'admin_bar'), 31);
 		add_action('admin_head', array($this, 'admin_css'));
 
-		if($this->english_install_only())
+		//Init action
+		add_action('init', array($this, 'init'));
+	}
+
+
+	function init()
+	{
+		//Registers GET listener to toggle setting
+		$this->register_endpoints();
+
+		//Message if WPML installed
+		if($this->wpml_installed())
 			add_action( 'admin_notices', array($this, 'admin_notices'));
 	}
 
@@ -137,15 +145,29 @@ class Admin_Custom_Language
 	 */
 	function english_install_only()
 	{
+		if($this->wpml_installed())
+			return false;
+
+		//If using WPLANG, otherwise check DB
 		if(defined('WPLANG'))
 			return (WPLANG === 'en_US' || WPLANG === '') ? true : false;
 		else
 		{
-			if(function_exists('get_bloginfo') && get_bloginfo('language') !== 'en_US')
+			//If language not en_US and not empty in database
+			if(function_exists('get_bloginfo') && (get_bloginfo('language') !== 'en_US' || trim(get_bloginfo('language')) !== '') )
 				return false;
 			else
 				return true;
 		}
+	}
+
+	/**
+	 * Checks if WPML is installed
+	 * @return bool
+	 */
+	function wpml_installed()
+	{
+		return defined('ICL_LANGUAGE_CODE');
 	}
 
 	/**
@@ -155,8 +177,8 @@ class Admin_Custom_Language
 	 */
 	function admin_bar($wp_admin_bar)
 	{
-		//We're in admin and this is not an english-only install
-		if(is_admin() && !$this->english_install_only() && apply_filters('english_wordpress_admin_show_admin_bar', true) === true)
+		//We're in admin and this is not a WPML install
+		if(is_admin() && !$this->wpml_installed() && apply_filters('english_wordpress_admin_show_admin_bar', true) === true)
 		{
 			//Sets up the toggle link
 			$toggle_href = admin_url('?admin_custom_language_toggle=' . ($this->english_admin_enabled() ? '0' : '1') . '&admin_custom_language_return_url=' . urlencode((is_ssl() ? 'https' : 'http') . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]));
@@ -267,7 +289,7 @@ class Admin_Custom_Language
 	{
 		?>
 		<div class="error">
-			<p><?php _e( "<strong>English Wordpress Admin Error</strong> <br/>You only have English language installed. Please install another language before using this plugin. <a href='http://codex.wordpress.org/Installing_WordPress_in_Your_Language' target='_blank'>Read more (WordPress codex)</a> <br/> This plugin is not compatible with WPML, as WPML already provides this functionality under the \"Profile\" tab.", 'admin-custom-language' ); ?></p>
+			<p><?php _e( "<strong>English Wordpress Admin Error</strong> <br/>You only have English language installed, or you are using WPML. If you only have English installed, please install another language before using this plugin. <a href='http://codex.wordpress.org/Installing_WordPress_in_Your_Language' target='_blank'>Read more (WordPress codex)</a> <br/> If you are using WPML, you do not need this plugin. WPML already provides a language switcher that can be configured under the \"Profile\" tab.", 'admin-custom-language' ); ?></p>
 		</div>
 		<?php
 	}

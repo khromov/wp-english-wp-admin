@@ -48,7 +48,7 @@ class Admin_Custom_Language
 	function set_locale($lang)
 	{
 		//If cookie is set and enabled, and we are not doing frontend AJAX, we should switch the locale
-		if($this->english_admin_enabled() && !$this->request_is_frontend_ajax() && !$this->in_url_whitelist())
+		if($this->english_admin_enabled() && !$this->request_is_frontend_ajax() && !$this->in_url_whitelist() && !$this->woocommerce_action())
 		{
 			//Switch locale if we are on an admin page
 			if(is_admin())
@@ -57,6 +57,19 @@ class Admin_Custom_Language
 
 		//Default return
 		return $lang;
+	}
+
+	/**
+	 * Attempt to identify WooCommerce actions (like sending emails)
+	 *
+	 * @return bool
+	 */
+	function woocommerce_action()
+	{
+		if(isset($_POST['wc_order_action']))
+			return true;
+		else
+			return false;
 	}
 
 	/**

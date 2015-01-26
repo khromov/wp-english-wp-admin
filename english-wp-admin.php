@@ -48,7 +48,7 @@ class Admin_Custom_Language
 	 */
 	function set_locale($lang)
 	{
-		//If cookie is set and enabled, and we are not doing frontend AJAX, we should switch the locale
+		//If cookie is set and enabled, and we are not doing frontend AJAX, and we are not on a whitelisted URL, and this is not a WooCommerce action, we should switch the locale
 		if($this->english_admin_enabled() && !$this->request_is_frontend_ajax() && !$this->in_url_whitelist() && !$this->woocommerce_action())
 		{
 			//Switch locale if we are on an admin page
@@ -148,23 +148,18 @@ class Admin_Custom_Language
 	 */
 	function request_is_frontend_ajax()
 	{
-		//$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 		$script_filename = isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '';
 
-		//Try to figure out if frontend AJAX request...
-		if(defined('DOING_AJAX') && DOING_AJAX)
+		//Try to figure out if frontend AJAX request... If we are DOING_AJAX; let's look closer
+		if((defined('DOING_AJAX') && DOING_AJAX))
 		{
-			if(
-				(strpos(wp_get_referer(), admin_url()) !== false) && //If AJAX referrer is an admin URL AND
-				(basename($script_filename) === 'admin-ajax.php') //If the script being executed has admin-ajax.php as the endpoint
-			)
-			{
+			//If referer does not contain admin URL and we are using the admin-ajax.php endpoint, this is likely a frontend AJAX request
+			if(((strpos(wp_get_referer(), admin_url()) === false) && (basename($script_filename) === 'admin-ajax.php')))
 				return true;
-			}
-			else
+			else //Otherwise, this is probably a regular backend AJAX request
 				return false;
 		}
-		else
+		else //We are not doing AJAX;  no chance of it being a frontend AJAX request
 			return false;
 	}
 

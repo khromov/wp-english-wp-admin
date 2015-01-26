@@ -3,7 +3,7 @@
 Plugin Name: English WordPress Admin
 Plugin URI: http://wordpress.org/plugins/english-wp-admin
 Description: Lets users change their administration language to English
-Version: 1.4
+Version: 1.4.1
 Author: khromov
 Author URI: http://snippets.khromov.se
 GitHub Plugin URI: khromov/wp-english-wp-admin

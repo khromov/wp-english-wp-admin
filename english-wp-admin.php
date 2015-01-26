@@ -156,7 +156,7 @@ class Admin_Custom_Language
 		{
 			if(
 				(strpos(wp_get_referer(), admin_url()) !== false) && //If AJAX referrer is an admin URL AND
-				(basename($_SERVER['SCRIPT_FILENAME']) === 'admin-ajax.php') //If the script being executed has admin-ajax.php as the endpoint
+				(basename($script_filename) === 'admin-ajax.php') //If the script being executed has admin-ajax.php as the endpoint
 			)
 			{
 				return true;

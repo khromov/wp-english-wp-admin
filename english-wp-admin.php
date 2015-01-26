@@ -6,6 +6,7 @@ Description: Lets users change their administration language to English
 Version: 1.4
 Author: khromov
 Author URI: http://snippets.khromov.se
+GitHub Plugin URI: khromov/wp-english-wp-admin
 License: GPL2
 */
 

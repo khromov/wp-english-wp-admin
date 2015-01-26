@@ -44,6 +44,17 @@ To fix this, move the file /wp-content/plugins/english-wp-admin/english-wp-admin
 This will ensure this plugin is loaded before all other plugins and that it sets the correct language.
 This is a WordPress restriction.
 
+= How do I whitelist a specific page from being translated =
+
+Use the english_wordpress_admin_whitelist filter.
+
+    /** Whitelist /wp-admin/options-general.php?page=my_plugin **/
+    add_filter('english_wordpress_admin_whitelist', function($whitelisted_urls)
+    {
+        $whitelisted_urls[] = '/wp-admin/options-general.php?page=my_plugin';
+        return $whitelisted_urls;
+    });
+
 = How do I prevent regular users from having the option of changing the admin language? =
 
 If you only want the first admin user to have this option, put this code in your themes function.php file:
@@ -76,6 +87,15 @@ This is a tiny plugin with a small mission. If you want better customization, ch
 1. The plugin admin bar
 
 == Changelog ==
+
+= 1.4 =
+* Rewritten and improved frontend AJAX detection
+* Added proper WPML detection
+* Fixed broken language auto-update
+* Fixed WooCommerce emails sent in wrong language
+* Fixed bug in Settings > General admin page detection
+* GitHub updater support
+* Introduced URL whitelist (with new filter: english_wordpress_admin_whitelist)
 
 = 1.3.2 =
 * Blacklisted changing language on Settings > General admin page until https://core.trac.wordpress.org/ticket/29362#comment:5 is fixed.

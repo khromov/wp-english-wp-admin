@@ -105,10 +105,10 @@ class Admin_Custom_Language
 	 */
 	function in_url_whitelist()
 	{
-		$whitelisted_urls = array(
+		$whitelisted_urls = apply_filters('english_wordpress_admin_whitelist', array(
 			'wp-admin/update-core.php',
 			'wp-admin/options-general.php'
-		);
+		));
 
 		$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
 

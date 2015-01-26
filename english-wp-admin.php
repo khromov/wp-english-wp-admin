@@ -48,7 +48,7 @@ class Admin_Custom_Language
 	function set_locale($lang)
 	{
 		//If cookie is set and enabled, and we are not doing frontend AJAX, we should switch the locale
-		if($this->english_admin_enabled() && !$this->request_is_frontend_ajax() && !$this->request_is_options_general_form())
+		if($this->english_admin_enabled() && !$this->request_is_frontend_ajax() && !$this->in_url_whitelist())
 		{
 			//Switch locale if we are on an admin page
 			if(is_admin())
@@ -85,6 +85,29 @@ class Admin_Custom_Language
 	}
 
 	/**
+	 * Whitelist some URL:s from translation
+	 *
+	 * @return bool
+	 */
+	function in_url_whitelist()
+	{
+		$whitelisted_urls = array(
+			'wp-admin/update-core.php',
+			'wp-admin/options-general.php'
+		);
+
+		$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+
+		foreach($whitelisted_urls as $whitelisted_url)
+		{
+			if(strpos($request_uri, $whitelisted_url) !== false)
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Checks if a version number is larger than or equal to a certain version
 	 *
 	 * @param $version
@@ -111,31 +134,24 @@ class Admin_Custom_Language
 	 */
 	function request_is_frontend_ajax()
 	{
-		return defined('DOING_AJAX') && DOING_AJAX && false === strpos( wp_get_referer(), '/wp-admin/' );
-	}
+		//$referer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$script_filename = isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : '';
 
-	/**
-	 * Check so that we are not on options-general.php, due to WP 4.0 issue:
-	 * https://core.trac.wordpress.org/ticket/29362#comment:5
-	 *
-	 * @return bool
-	 */
-	function request_is_options_general_form()
-	{
-		//Perform check for new WP versions
-		if($this->is_version('4.0'))
+		//Try to figure out if frontend AJAX request...
+		if(defined('DOING_AJAX') && DOING_AJAX)
 		{
-			$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
-
-			if(strpos($request_uri, 'wp-admin/options-general.php') !== false)
+			if(
+				(strpos(wp_get_referer(), admin_url()) !== false) && //If AJAX referrer is an admin URL AND
+				(basename($_SERVER['SCRIPT_FILENAME']) === 'admin-ajax.php') //If the script being executed has admin-ajax.php as the endpoint
+			)
+			{
 				return true;
+			}
 			else
 				return false;
 		}
-		else //Don't do checks for old versions
-		{
+		else
 			return false;
-		}
 	}
 
 	/**
@@ -150,7 +166,7 @@ class Admin_Custom_Language
 
 		//If using WPLANG, otherwise check DB
 		if(defined('WPLANG'))
-			return (WPLANG === 'en_US' || WPLANG === '') ? true : false;
+			return (WPLANG === 'en_US' || trim(WPLANG) === '') ? true : false;
 		else
 		{
 			//If language not en_US and not empty in database
@@ -178,7 +194,7 @@ class Admin_Custom_Language
 	function admin_bar($wp_admin_bar)
 	{
 		//We're in admin and this is not a WPML install
-		if(is_admin() && !$this->wpml_installed() && apply_filters('english_wordpress_admin_show_admin_bar', true) === true)
+		if(is_admin() && apply_filters('english_wordpress_admin_show_admin_bar', true) === true)
 		{
 			//Sets up the toggle link
 			$toggle_href = admin_url('?admin_custom_language_toggle=' . ($this->english_admin_enabled() ? '0' : '1') . '&admin_custom_language_return_url=' . urlencode((is_ssl() ? 'https' : 'http') . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]));
@@ -204,14 +220,12 @@ class Admin_Custom_Language
 				'parent' => 'admin-custom-language-icon'
 			);
 
-			if(!$this->request_is_options_general_form())
+			if(!$this->in_url_whitelist())
 			{
 				$wp_admin_bar->add_node($main_bar);
 				$wp_admin_bar->add_node($main_bar_sub);
 			}
-
 		}
-
 	}
 
 	/**

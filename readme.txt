@@ -44,6 +44,14 @@ To fix this, move the file /wp-content/plugins/english-wp-admin/english-wp-admin
 This will ensure this plugin is loaded before all other plugins and that it sets the correct language.
 This is a WordPress restriction.
 
+= Why are some URLs whitelisted? =
+
+update-core.php is whitelisted because translation updates do not work properly if you change locale on that screen.
+
+options-general.php is whitelisted due to Trac issue #31318 and #29362
+
+https://core.trac.wordpress.org/ticket/31318
+
 = How do I whitelist a specific page from being translated =
 
 Use the english_wordpress_admin_whitelist filter.
@@ -87,6 +95,23 @@ This is a tiny plugin with a small mission. If you want better customization, ch
 1. The plugin admin bar
 
 == Changelog ==
+
+= 1.5.0 =
+
+* Fixed a bug where some plugin options pages were not translated properly
+* Performance fixes (Utilizing Object Cache)
+
+= 1.4.1 =
+* Minor tweaks
+
+= 1.4 =
+* Rewritten and improved frontend AJAX detection
+* Added proper WPML detection
+* Fixed broken language auto-update
+* Fixed WooCommerce emails sent in wrong language
+* Fixed bug in Settings > General admin page detection
+* GitHub updater support
+* Introduced URL whitelist (with new filter: english_wordpress_admin_whitelist)
 
 = 1.4 =
 * Rewritten and improved frontend AJAX detection

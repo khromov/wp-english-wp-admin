@@ -10,12 +10,15 @@ GitHub Plugin URI: khromov/wp-english-wp-admin
 License: GPL2
 */
 
+/** Initialize plugin **/
+$english_wordpress_admin_plugin = new Admin_Custom_Language();
+
 /*
  * Main plugin class
  */
 class Admin_Custom_Language
 {
-    static $version = '1.4.2';
+    const SLUG = 'english-wp-admin';
 
 	/* Constructor for adding hooks */
 	function __construct()
@@ -34,6 +37,9 @@ class Admin_Custom_Language
 
 	function init()
 	{
+        //Add non-persistent cache group
+        wp_cache_add_non_persistent_groups(self::SLUG);
+
 		//Registers GET listener to toggle setting
 		$this->register_endpoints();
 
@@ -45,8 +51,8 @@ class Admin_Custom_Language
 	/**
 	 * This function is responsible fo setting the locale via the locale filter
 	 *
-	 * @param $lang the current locale
-	 * @return string the locale that should be used
+	 * @param $lang - the current locale
+	 * @return string - the locale that should be used
 	 */
 	function set_locale($lang)
 	{
@@ -113,23 +119,35 @@ class Admin_Custom_Language
 	 */
 	function in_url_whitelist()
 	{
+        //Get path of URL
+        //TODO: Perhaps using parse_url() would be better?
+        $request_uri = isset($_SERVER['REQUEST_URI']) ? trim($_SERVER['REQUEST_URI']) : '';
+
+        //Bail early if we are cached
+        if(($val = wp_cache_get($request_uri, self::SLUG)) !== false) {
+            return ($val === 'yes') ? true : false;
+        }
+
 		$whitelisted_regex = apply_filters('english_wordpress_admin_whitelist', array(
 			'.*\/wp-admin\/update-core.php$',
-			'.*\/wp-admin\/options-general.php$ '
+			'.*\/wp-admin\/options-general.php$'
 		));
-
-		$request_uri = isset($_SERVER['REQUEST_URI']) ? trim($_SERVER['REQUEST_URI']) : '';
 
         //Attempt to match a whitelisted URL.
 		foreach($whitelisted_regex as $whitelisted_regex_single)
 		{
-            var_dump($request_uri);
-            var_dump("/{$whitelisted_regex_single}/");
-
-            var_dump(preg_match("/{$whitelisted_regex_single}/", $request_uri));
 			if(preg_match("/{$whitelisted_regex_single}/", $request_uri))
-				return true;
+            {
+                //Cache result for this URL in non-persistent Object Cache
+                wp_cache_set($request_uri, "yes", self::SLUG);
+
+                //Return true
+                return true;
+            }
 		}
+
+        //Cache result for this URL in non-persistent Object Cache
+        wp_cache_set($request_uri, "no", self::SLUG);
 
         //Nothing matched, admin URL not in whitelist
 		return false;
@@ -147,9 +165,11 @@ class Admin_Custom_Language
 		return version_compare($wp_version, $version, '>=');
 	}
 
-	/**
-	 * Sets the cookie. (1 year expiry)
-	 */
+    /**
+     * Sets the cookie. (1 year expiry)
+     *
+     * @param string $value
+     */
 	function set_cookie($value = '1')
 	{
 		setcookie('wordpress_admin_default_language_'. COOKIEHASH, $value, strtotime('+1 year'), COOKIEPATH, COOKIE_DOMAIN, false);
@@ -170,11 +190,10 @@ class Admin_Custom_Language
 			//If referer does not contain admin URL and we are using the admin-ajax.php endpoint, this is likely a frontend AJAX request
 			if(((strpos(wp_get_referer(), admin_url()) === false) && (basename($script_filename) === 'admin-ajax.php')))
 				return true;
-			else //Otherwise, this is probably a regular backend AJAX request
-				return false;
 		}
-		else //We are not doing AJAX;  no chance of it being a frontend AJAX request
-			return false;
+
+        //If no checks triggered, we end up here - not an AJAX request.
+        return false;
 	}
 
 	/**
@@ -202,6 +221,7 @@ class Admin_Custom_Language
 
 	/**
 	 * Checks if WPML is installed
+     *
 	 * @return bool
 	 */
 	function wpml_installed()
@@ -212,7 +232,7 @@ class Admin_Custom_Language
 	/**
 	 * Adds a menu item to the admin bar via the admin_bar_menu hook
 	 *
-	 * @param $wp_admin_bar The WP_Admin_Bar object
+	 * @param $wp_admin_bar WP_Admin_Bar object
 	 */
 	function admin_bar($wp_admin_bar)
 	{
@@ -220,16 +240,22 @@ class Admin_Custom_Language
 		if(is_admin() && apply_filters('english_wordpress_admin_show_admin_bar', true) === true)
 		{
 			//Sets up the toggle link
-			$toggle_href = admin_url('?admin_custom_language_toggle=' . ($this->english_admin_enabled() ? '0' : '1') . '&admin_custom_language_return_url=' . urlencode((is_ssl() ? 'https' : 'http') . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]));
+            if($this->in_url_whitelist())
+			    $toggle_href =  plugin_dir_url( __FILE__ ) . 'readme.txt';
+            else
+                $toggle_href = admin_url('?admin_custom_language_toggle=' . ($this->english_admin_enabled() ? '0' : '1') . '&admin_custom_language_return_url=' . urlencode((is_ssl() ? 'https' : 'http') . '://' . $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]));
 
-			$message_on = __('Switch to native', 'admin-custom-language');
-			$message_off = __('Switch to English', 'admin-custom-language');
+            //Create toggle title
+            if($this->in_url_whitelist())
+                $toggle_title = __('This admin screen cannot be translated. For more information, see the readme.', self::SLUG);
+            else
+                $toggle_title = ($this->english_admin_enabled() ? __('Switch to native', $this::SLUG) : __('Switch to English', $this::SLUG));
 
 			//Add main menu
 			$main_bar = array(
 				'id' => 'admin-custom-language-icon',
 				'title' => $this->admin_bar_title(),
-				'href' => $toggle_href,
+				'href' => $this->in_url_whitelist() ? '#' : $toggle_href,
 				'meta' => array(
 					'class' => 'admin-custom-language-icon'
 				)
@@ -238,16 +264,16 @@ class Admin_Custom_Language
 			//Add sub menu
 			$main_bar_sub = array(
 				'id' => 'admin-custom-language-icon-submenu',
-				'title' => ($this->english_admin_enabled() ? $message_on : $message_off),
+				'title' => $toggle_title,
 				'href' => $toggle_href,
-				'parent' => 'admin-custom-language-icon'
+				'parent' => 'admin-custom-language-icon',
+                'meta' => array(
+                    'target' => $this->in_url_whitelist() ? '_blank' : '_self'
+                )
 			);
 
-			if(!$this->in_url_whitelist())
-			{
-				$wp_admin_bar->add_node($main_bar);
-				$wp_admin_bar->add_node($main_bar_sub);
-			}
+            $wp_admin_bar->add_node($main_bar);
+            $wp_admin_bar->add_node($main_bar_sub);
 		}
 	}
 
@@ -258,7 +284,10 @@ class Admin_Custom_Language
 	 */
 	function admin_bar_title()
 	{
-		return get_locale();
+        if($this->in_url_whitelist())
+            return '<span style="color: yellow;">' . get_locale() . '</span>';
+		else
+            return get_locale();
 	}
 
 	/**
@@ -331,6 +360,3 @@ class Admin_Custom_Language
 		<?php
 	}
 }
-
-/* Init plugin */
-$english_wordpress_admin_plugin = new Admin_Custom_Language();

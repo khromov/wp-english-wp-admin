@@ -3,7 +3,7 @@
 Plugin Name: English WordPress Admin
 Plugin URI: http://wordpress.org/plugins/english-wp-admin
 Description: Lets users change their administration language to English
-Version: 1.4.1
+Version: 1.4.2
 Author: khromov
 Author URI: http://snippets.khromov.se
 GitHub Plugin URI: khromov/wp-english-wp-admin
@@ -15,6 +15,8 @@ License: GPL2
  */
 class Admin_Custom_Language
 {
+    static $version = '1.4.2';
+
 	/* Constructor for adding hooks */
 	function __construct()
 	{
@@ -99,25 +101,37 @@ class Admin_Custom_Language
 	}
 
 	/**
-	 * Whitelist some URL:s from translation
+	 * Whitelist some URL:s from translation.
+     *
+     * update-core.php is whitelisted because translation updates do not work properly if you change locale on that screen.
+     *
+     * options-general.php is whitelisted due to Trac issue #31318 and #29362
+     * https://core.trac.wordpress.org/ticket/31318
+     * https://core.trac.wordpress.org/ticket/29362
 	 *
 	 * @return bool
 	 */
 	function in_url_whitelist()
 	{
-		$whitelisted_urls = apply_filters('english_wordpress_admin_whitelist', array(
-			'wp-admin/update-core.php',
-			'wp-admin/options-general.php'
+		$whitelisted_regex = apply_filters('english_wordpress_admin_whitelist', array(
+			'.*\/wp-admin\/update-core.php$',
+			'.*\/wp-admin\/options-general.php$ '
 		));
 
-		$request_uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+		$request_uri = isset($_SERVER['REQUEST_URI']) ? trim($_SERVER['REQUEST_URI']) : '';
 
-		foreach($whitelisted_urls as $whitelisted_url)
+        //Attempt to match a whitelisted URL.
+		foreach($whitelisted_regex as $whitelisted_regex_single)
 		{
-			if(strpos($request_uri, $whitelisted_url) !== false)
+            var_dump($request_uri);
+            var_dump("/{$whitelisted_regex_single}/");
+
+            var_dump(preg_match("/{$whitelisted_regex_single}/", $request_uri));
+			if(preg_match("/{$whitelisted_regex_single}/", $request_uri))
 				return true;
 		}
 
+        //Nothing matched, admin URL not in whitelist
 		return false;
 	}
 

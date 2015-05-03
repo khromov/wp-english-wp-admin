@@ -10,9 +10,6 @@ GitHub Plugin URI: khromov/wp-english-wp-admin
 License: GPL2
 */
 
-/** Initialize plugin **/
-$english_wordpress_admin_plugin = new Admin_Custom_Language();
-
 /*
  * Main plugin class
  */
@@ -326,7 +323,7 @@ class Admin_Custom_Language
 				{
 					/* admin globe - content:"\f319"; */
 					/* translate icon */
-					content:"\f326";
+					content: "\f326";
 					top: 2px;
 				}
          	</style>
@@ -337,7 +334,7 @@ class Admin_Custom_Language
 	/**
 	 * Version checker function
 	 *
-	 * @param $version The version we want to check against the current one
+	 * @param $version string version we want to check against the current one
 	 * @return bool True if the current WP version is at least as new as $version
 	 */
 	function wp_version_at_least($version)
@@ -360,3 +357,6 @@ class Admin_Custom_Language
 		<?php
 	}
 }
+
+/** Initialize plugin **/
+$english_wordpress_admin_plugin = new Admin_Custom_Language();

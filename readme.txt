@@ -14,7 +14,9 @@ This plugin lets users change their administration language to native English (e
 This is useful during site development and for people more accustomed to the english administration panel, even if your site
 is in another language. (The frontend will still use the native language.)
 
-This plugin is developer friendly and small (~100 lines of code). Check the FAQ for customization examples.
+This plugin is fully compatible with WooCommerce and can correctly identify and translate frontend / backend AJAX requests.
+
+This plugin is developer friendly and small (~200 lines of code). Check the FAQ for customization examples.
 
 **Usage**
 
@@ -145,6 +147,3 @@ message would appear erroneously.
 
 = 1.0 =
 * Initial release
-
-== TODO ==
-* Verifying compatibility with WPML is on the todo list.

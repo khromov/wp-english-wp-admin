@@ -2,7 +2,7 @@
 Contributors: khromov
 Tags: english, wpml, multilanguage
 Requires at least: 3.5
-Tested up to: 4.0
+Tested up to: 4.2.1
 Stable tag: 1.4.1
 License: GPL2
 

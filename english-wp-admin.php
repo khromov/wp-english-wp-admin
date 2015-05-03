@@ -10,8 +10,8 @@ GitHub Plugin URI: khromov/wp-english-wp-admin
 License: GPL2
 */
 
-/*
- * Main plugin class
+/**
+ * Class Admin_Custom_Language
  */
 class Admin_Custom_Language
 {
@@ -184,8 +184,16 @@ class Admin_Custom_Language
 		//Try to figure out if frontend AJAX request... If we are DOING_AJAX; let's look closer
 		if((defined('DOING_AJAX') && DOING_AJAX))
 		{
+            //From wp-includes/functions.php, wp_get_referer() function.
+            //Required to fix: https://core.trac.wordpress.org/ticket/25294
+            $ref = '';
+            if ( ! empty( $_REQUEST['_wp_http_referer'] ) )
+                $ref = wp_unslash( $_REQUEST['_wp_http_referer'] );
+            elseif ( ! empty( $_SERVER['HTTP_REFERER'] ) )
+                $ref = wp_unslash( $_SERVER['HTTP_REFERER'] );
+
 			//If referer does not contain admin URL and we are using the admin-ajax.php endpoint, this is likely a frontend AJAX request
-			if(((strpos(wp_get_referer(), admin_url()) === false) && (basename($script_filename) === 'admin-ajax.php')))
+			if(((strpos($ref, admin_url()) === false) && (basename($script_filename) === 'admin-ajax.php')))
 				return true;
 		}
 

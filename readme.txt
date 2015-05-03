@@ -15,6 +15,8 @@ This is useful during site development and for people more accustomed to the eng
 is in another language. (The frontend will still use the native language.)
 
 This plugin is fully compatible with WooCommerce and can correctly identify and translate frontend / backend AJAX requests.
+If you are using this plugin with Advanced Custom Fields, please move the english-wp-admin.php file to the /wp-content/mu-plugins/ folder
+(create it if it does not exist). This is an ACF limitation.
 
 This plugin is developer friendly and small (~200 lines of code). Check the FAQ for customization examples.
 
@@ -43,8 +45,7 @@ press the button again.
 
 To fix this, move the file /wp-content/plugins/english-wp-admin/english-wp-admin.php to /wp-content/mu-plugins/
 
-This will ensure this plugin is loaded before all other plugins and that it sets the correct language.
-This is a WordPress restriction.
+This will ensure this plugin is loaded before all other plugins and that it sets the correct language. This is a WordPress restriction.
 
 = Why are some URLs whitelisted? =
 
@@ -57,12 +58,12 @@ https://core.trac.wordpress.org/ticket/29362
 
 = How do I whitelist a specific page from being translated =
 
-Use the english_wordpress_admin_whitelist filter.
+Use the english_wordpress_admin_whitelist filter. It takes a preg-style regular expression.
 
     /** Whitelist /wp-admin/options-general.php?page=my_plugin **/
     add_filter('english_wordpress_admin_whitelist', function($whitelisted_urls)
     {
-        $whitelisted_urls[] = '/wp-admin/options-general.php?page=my_plugin';
+        $whitelisted_urls[] = '.*\/wp-admin\/options-general.php\?page=my_page$';
         return $whitelisted_urls;
     });
 
@@ -91,7 +92,7 @@ Use the snippet below to have admins always use the admin page in english.
 
 = This plugin does not solve my needs =
 
-This is a tiny plugin with a small mission. If you want better customization, check out the [Native Dashboard](http://wordpress.org/plugins/wp-native-dashboard/) plugin instead which has more functionality at the expense of a larger codebase. 
+You can leave feature requests in the plugin support forum.
 
 == Screenshots ==
 
@@ -101,9 +102,11 @@ This is a tiny plugin with a small mission. If you want better customization, ch
 
 = 1.5.0 =
 
-* Fixed a bug where some plugin options pages were not translated properly
+* Fixed a bug where some plugin options pages had the native language despite switching to english
+* More robust AJAX detection (properly separates frontend / backend AJAX)
+* Better notifications whe visiting a whitelisted URL
 * Performance fixes (Utilizing Object Cache)
-* Better notifications whe visiting a whitelisted URL.
+* Improved ACF, WooCommerce and WPML support
 
 = 1.4.1 =
 * Minor tweaks

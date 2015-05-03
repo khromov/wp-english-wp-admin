@@ -51,6 +51,7 @@ update-core.php is whitelisted because translation updates do not work properly 
 options-general.php is whitelisted due to Trac issue #31318 and #29362
 
 https://core.trac.wordpress.org/ticket/31318
+https://core.trac.wordpress.org/ticket/29362
 
 = How do I whitelist a specific page from being translated =
 
@@ -100,6 +101,7 @@ This is a tiny plugin with a small mission. If you want better customization, ch
 
 * Fixed a bug where some plugin options pages were not translated properly
 * Performance fixes (Utilizing Object Cache)
+* Better notifications whe visiting a whitelisted URL.
 
 = 1.4.1 =
 * Minor tweaks

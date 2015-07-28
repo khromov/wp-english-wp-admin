@@ -267,7 +267,7 @@ class Admin_Custom_Language
 				$toggle_title = __('This admin screen cannot be translated. For more information, see the readme.', self::SLUG);
 			}
 			else {
-				$toggle_title = ($this->english_admin_enabled() ? __('Switch to native', $this::SLUG) : __('Switch to English', $this::SLUG));
+				$toggle_title = ($this->english_admin_enabled() ? __('Switch to native', self::SLUG) : __('Switch to English', self::SLUG));
 			}
 
 			//Add main menu

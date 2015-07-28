@@ -100,6 +100,12 @@ You can leave feature requests in the plugin support forum.
 
 == Changelog ==
 
+= 1.5.1 =
+
+* Fix for PHP 5.2
+* Fix for whitelisting edge case
+* Code formatting touchup
+
 = 1.5.0 =
 
 * Fixed a bug where some plugin options pages had the native language despite switching to english

@@ -96,11 +96,13 @@ class Admin_Custom_Language
 				//Cast variable
 				$cookie_value = intval($_GET['admin_custom_language_toggle']);
 
-				//Set cookie
-				$cookie_value === 1 ? $this->set_cookie(1) : $this->set_cookie(0);
+				if(wp_verify_nonce( $_GET['nonce'], 'english_wordpress_admin_redirect')) {
+					//Set cookie
+					$cookie_value === 1 ? $this->set_cookie(1) : $this->set_cookie(0);
 
-				if(isset($_GET['admin_custom_language_return_url']) && wp_verify_nonce( $_GET['nonce'], 'english_wordpress_admin_redirect')) {
-					wp_redirect(urldecode($_GET['admin_custom_language_return_url']));
+					if(isset($_GET['admin_custom_language_return_url'])) {
+						wp_redirect(urldecode($_GET['admin_custom_language_return_url']));
+					}
 				}
 				else {
 					wp_redirect(admin_url());

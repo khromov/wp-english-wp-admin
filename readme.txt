@@ -3,7 +3,7 @@ Contributors: khromov
 Tags: english, wpml, multilanguage
 Requires at least: 3.5
 Tested up to: 5.3
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 License: GPL2
 
 Lets users change their administration language to English
@@ -99,6 +99,10 @@ You can leave feature requests in the plugin support forum.
 1. The plugin admin bar
 
 == Changelog ==
+
+= 1.5.2 =
+
+* Fix for unauthenticated open redirect vulnerability
 
 = 1.5.1 =
 
